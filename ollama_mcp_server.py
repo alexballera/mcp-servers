@@ -42,11 +42,12 @@ class OllamaMCPServer:
             'explain_repo': self.explain_repo,
             'status': self.system_status,
             'models': self.list_models,
+            'warmup': self.warmup_models,
             'help': self.show_help
         }
     
     def _ollama_request(self, model: str, prompt: str, system: str = "") -> str:
-        """Realizar solicitud a Ollama con timeout"""
+        """Realizar solicitud a Ollama con timeout optimizado"""
         try:
             data = {
                 "model": model,
@@ -56,15 +57,18 @@ class OllamaMCPServer:
             if system:
                 data["system"] = system
             
-            # Timeout de 60 segundos para requests grandes
+            # Timeout de 120 segundos para la primera carga del modelo
+            print(f"💭 Procesando con {model}...")
             response = requests.post(f"{self.ollama_url}/api/generate", 
-                                   json=data, timeout=60)
+                                   json=data, timeout=120)
             if response.status_code == 200:
-                return response.json().get('response', 'Sin respuesta')
+                result = response.json().get('response', 'Sin respuesta')
+                print("✅ Respuesta generada")
+                return result
             else:
                 return f"Error: Ollama no disponible ({response.status_code})"
         except requests.exceptions.Timeout:
-            return "Error: Timeout - Ollama tardó demasiado en responder. Intenta con un prompt más simple."
+            return "Error: Timeout - Ollama tardó más de 2 minutos. Puede estar cargando el modelo por primera vez. Intenta de nuevo."
         except Exception as e:
             return f"Error conectando a Ollama: {str(e)}"
     
@@ -343,6 +347,31 @@ class OllamaMCPServer:
         except Exception as e:
             return {"error": f"Error al listar modelos: {str(e)}"}
     
+    def warmup_models(self) -> Dict[str, Any]:
+        """Precargar modelos en memoria para respuestas más rápidas"""
+        print("🔥 Precargando modelos...")
+        results = {
+            "type": "warmup",
+            "results": []
+        }
+        
+        models_to_warmup = [self.default_model, self.coding_model]
+        
+        for model in models_to_warmup:
+            print(f"   🔄 Precargando {model}...")
+            try:
+                # Hacer una request simple para cargar el modelo
+                warmup_response = self._ollama_request(model, "OK", "")
+                if "Error" not in warmup_response:
+                    results["results"].append(f"✅ {model} precargado exitosamente")
+                else:
+                    results["results"].append(f"❌ Error precargando {model}: {warmup_response}")
+            except Exception as e:
+                results["results"].append(f"❌ Error precargando {model}: {str(e)}")
+        
+        print("🎉 Precarga completada")
+        return results
+    
     def show_help(self) -> Dict[str, Any]:
         """Mostrar ayuda del servidor"""
         return {
@@ -357,6 +386,7 @@ class OllamaMCPServer:
                 {"name": "explain_repo", "description": "Explicar repositorio", "usage": "explain_repo <owner/repo>"},
                 {"name": "status", "description": "Ver estado del sistema", "usage": "status"},
                 {"name": "models", "description": "Listar modelos disponibles", "usage": "models"},
+                {"name": "warmup", "description": "Precargar modelos en memoria", "usage": "warmup"},
                 {"name": "help", "description": "Mostrar ayuda", "usage": "help"}
             ],
             "models": {
@@ -373,7 +403,7 @@ class OllamaMCPServer:
         if tool_name not in self.tools:
             return {"error": f"Herramienta '{tool_name}' no encontrada. Usa 'help' para ver opciones."}
         
-        if tool_name in ['help', 'status', 'models']:
+        if tool_name in ['help', 'status', 'models', 'warmup']:
             return {"tool": tool_name, "params": {}}
         elif tool_name in ['chat', 'code', 'github_search', 'analyze_code', 'review_code']:
             if len(parts) < 2:
