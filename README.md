@@ -78,6 +78,42 @@ ollama pull deepseek-coder:6.7b
 mcp start
 ```
 
+## 🔧 Configuración de VS Code MCP
+
+Para usar el servidor con VS Code y GitHub Copilot:
+
+### 1. Instalar Extensión MCP
+- Instala la extensión "Model Context Protocol" en VS Code
+
+### 2. Configurar settings.json
+```json
+{
+  "mcp": {
+    "servers": {
+      "ollama-mcp": {
+        "command": "python3",
+        "args": [
+          "/ruta/completa/a/mcp-servers/ollama_mcp_protocol.py"
+        ],
+        "cwd": "/ruta/completa/a/mcp-servers",
+        "env": {
+          "PATH": "/ruta/completa/a/mcp-servers/.venv/bin:${PATH}",
+          "VIRTUAL_ENV": "/ruta/completa/a/mcp-servers/.venv"
+        }
+      }
+    }
+  }
+}
+```
+
+### 3. Herramientas Disponibles
+- `chat` - Chat general con Llama
+- `code_assist` - Asistencia de código especializada  
+- `github_search` - Buscar repositorios en GitHub
+- `analyze_code` - Análisis de código con IA
+
+**Importante:** Asegúrate de que tu `GITHUB_TOKEN` esté en el archivo `.env`
+
 ## 🎯 Modos de Uso
 
 ### 🖥️ MODO 1: Servidor Interactivo
