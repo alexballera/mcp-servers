@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/home/alexballera/mcp-servers/.venv/bin/python
 """
 🤖 ASK - Comando súper simple para hacer preguntas rápidas
 Uso: ask "tu pregunta aquí"

@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/home/alexballera/mcp-servers/.venv/bin/python
 """
 💻 CODEHELP - Asistente de código desde terminal
 Uso: codehelp "problema de código" o codehelp --fix "error"

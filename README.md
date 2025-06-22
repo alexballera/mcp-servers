@@ -46,19 +46,24 @@ Los servidores MCP se integran automáticamente con Copilot. Configuración en `
   "mcp.mcpServers": {
     "groq-agent": {
       "command": "python",
-      "args": ["/ruta/completa/a/groq_mcp_fast.py"]
+      "args": ["${env:HOME}/tools/mcp-servers/groq_mcp_fast.py"]
     },
     "git": {
       "command": "python", 
-      "args": ["/ruta/completa/a/git_mcp_server.py"]
+      "args": ["${env:HOME}/tools/mcp-servers/git_mcp_server.py"]
     },
     "github": {
       "command": "python",
-      "args": ["/ruta/completa/a/github_mcp_server.py"]
+      "args": ["${env:HOME}/tools/mcp-servers/github_mcp_server.py"],
+      "env": {
+        "GITHUB_TOKEN": "tu_github_token_aqui"
+      }
     }
   }
 }
 ```
+
+> 💡 **Nota**: Usamos `${env:HOME}` para portabilidad entre dispositivos
 
 ## 📁 Estructura (Minimalista)
 
@@ -116,6 +121,30 @@ Una vez funcionando:
 1. Agregar `export PATH="$PATH:/ruta/a/mcp-servers"` a tu `.bashrc`
 2. Configurar VS Code settings para MCP
 3. ¡Empezar a usar los comandos AI!
+
+## 🔄 Portabilidad entre Dispositivos
+
+### Para usar en múltiples dispositivos:
+
+1. **Mantener estructura consistente:**
+   ```bash
+   ~/tools/mcp-servers/  # Ubicación recomendada
+   ```
+
+2. **VS Code usa variables de entorno:**
+   ```json
+   "args": ["${env:HOME}/tools/mcp-servers/groq_mcp_fast.py"]
+   ```
+
+3. **Sincronizar configuración:**
+   - Clonar repo en `~/tools/mcp-servers`
+   - Configurar `.env` con tus API keys
+   - VS Code detectará automáticamente los servidores
+
+### Alternativas de ubicación:
+- `~/tools/mcp-servers/` ✅ Recomendado
+- `~/.local/bin/mcp-servers/` ✅ Alternativo
+- `/opt/mcp-servers/` ⚠️ Requiere permisos admin
 
 ---
 **🚀 Ready to use en <2 minutos** | **⚡ Respuestas en <2 segundos** | **🔧 Sin Node.js, solo Python**
