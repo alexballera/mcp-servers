@@ -1,0 +1,58 @@
+#!/usr/bin/env python3
+"""
+🤖 ASK - Comando súper simple para hacer preguntas rápidas
+Uso: ask "tu pregunta aquí"
+"""
+
+import os
+import sys
+import requests
+import time
+from dotenv import load_dotenv
+
+load_dotenv()
+
+def ask_groq(question: str) -> str:
+    api_key = os.getenv('GROQ_API_KEY')
+    if not api_key:
+        return "❌ Configura GROQ_API_KEY en .env"
+    
+    try:
+        start_time = time.time()
+        
+        response = requests.post(
+            'https://api.groq.com/openai/v1/chat/completions',
+            headers={
+                'Authorization': f'Bearer {api_key}',
+                'Content-Type': 'application/json'
+            },
+            json={
+                'model': 'llama-3.1-8b-instant',
+                'messages': [{'role': 'user', 'content': question}],
+                'max_tokens': 500,
+                'temperature': 0.7
+            },
+            timeout=10
+        )
+        
+        duration = time.time() - start_time
+        
+        if response.status_code == 200:
+            result = response.json()
+            content = result['choices'][0]['message']['content']
+            speed = "⚡" if duration < 2 else "🔥"
+            print(f"{speed} {duration:.1f}s | {content}")
+        else:
+            print(f"❌ Error: {response.status_code}")
+            
+    except Exception as e:
+        print(f"❌ Error: {str(e)}")
+
+if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        print("Uso: ask \"tu pregunta\"")
+        print("Ejemplo: ask \"¿Cómo instalar Python?\"")
+        sys.exit(1)
+    
+    question = " ".join(sys.argv[1:])
+    ask_groq(question)

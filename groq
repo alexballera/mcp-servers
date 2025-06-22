@@ -1,0 +1,168 @@
+#!/usr/bin/env python3
+"""
+🚀 GROQ TERMINAL AGENT - Cliente de terminal ultra-rápido
+Agente AI para la terminal usando Groq (0.5-2 segundos)
+"""
+
+import os
+import sys
+import requests
+import json
+import time
+import argparse
+from dotenv import load_dotenv
+
+# Cargar variables de entorno
+load_dotenv()
+
+class GroqTerminalAgent:
+    def __init__(self):
+        self.api_key = os.getenv('GROQ_API_KEY')
+        self.base_url = "https://api.groq.com/openai/v1/chat/completions"
+        self.model = "llama-3.1-8b-instant"  # Modelo más rápido
+        
+        if not self.api_key:
+            print("❌ Error: GROQ_API_KEY no encontrada en .env")
+            print("📝 Configura: echo 'GROQ_API_KEY=tu_key' >> .env")
+            sys.exit(1)
+
+    def chat(self, message: str, system: str = "", max_tokens: int = 1000) -> str:
+        """Chat con Groq"""
+        try:
+            start_time = time.time()
+            
+            messages = []
+            if system:
+                messages.append({"role": "system", "content": system})
+            messages.append({"role": "user", "content": message})
+            
+            data = {
+                "model": self.model,
+                "messages": messages,
+                "max_tokens": max_tokens,
+                "temperature": 0.7,
+                "stream": False
+            }
+            
+            response = requests.post(
+                self.base_url,
+                headers={
+                    "Authorization": f"Bearer {self.api_key}",
+                    "Content-Type": "application/json"
+                },
+                json=data,
+                timeout=10
+            )
+            
+            end_time = time.time()
+            duration = end_time - start_time
+            
+            if response.status_code == 200:
+                result = response.json()
+                content = result["choices"][0]["message"]["content"]
+                
+                # Mostrar info de velocidad
+                speed_emoji = "⚡" if duration < 2 else "🔥" if duration < 5 else "⏱️"
+                print(f"\n{speed_emoji} Respuesta en {duration:.2f}s")
+                return content
+            else:
+                return f"❌ Error: {response.status_code} - {response.text}"
+                
+        except Exception as e:
+            return f"❌ Error: {str(e)}"
+
+    def code_help(self, query: str) -> str:
+        """Ayuda especializada en código"""
+        system = """Eres un experto programador. Responde de forma concisa y práctica.
+        Si es código, muestra ejemplos funcionales. Si es un error, da la solución directa."""
+        return self.chat(query, system, max_tokens=800)
+
+    def quick_fix(self, problem: str) -> str:
+        """Solución rápida a problemas"""
+        system = """Da una solución directa y práctica. Máximo 3 párrafos.
+        Enfócate en la solución, no en explicaciones largas."""
+        return self.chat(problem, system, max_tokens=500)
+
+    def explain(self, concept: str) -> str:
+        """Explicar conceptos"""
+        system = """Explica de forma clara y concisa. Usa ejemplos prácticos.
+        Estructura: definición breve → ejemplo → uso práctico."""
+        return self.chat(f"Explica: {concept}", system, max_tokens=600)
+
+def main():
+    parser = argparse.ArgumentParser(
+        description='🚀 Groq Terminal Agent - Asistente AI ultra-rápido',
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Ejemplos de uso:
+  groq "¿Cómo hacer un bucle en Python?"
+  groq --code "Error: ModuleNotFoundError: No module named 'requests'"
+  groq --fix "Mi código Python no funciona"
+  groq --explain "list comprehension en Python"
+  groq --chat                    # Modo interactivo
+        """
+    )
+    
+    parser.add_argument('message', nargs='?', help='Mensaje para el agente')
+    parser.add_argument('--code', '-c', metavar='QUERY', help='Ayuda de código')
+    parser.add_argument('--fix', '-f', metavar='PROBLEM', help='Solución rápida')
+    parser.add_argument('--explain', '-e', metavar='CONCEPT', help='Explicar concepto')
+    parser.add_argument('--chat', '-i', action='store_true', help='Modo interactivo')
+    
+    args = parser.parse_args()
+    
+    agent = GroqTerminalAgent()
+    
+    # Banner
+    print("🚀 GROQ TERMINAL AGENT")
+    print("=" * 40)
+    
+    try:
+        if args.chat:
+            # Modo interactivo
+            print("💬 Modo chat interactivo (Ctrl+C para salir)")
+            print("Escribe tus preguntas:")
+            print()
+            
+            while True:
+                try:
+                    user_input = input("🤖 Tu: ").strip()
+                    if not user_input:
+                        continue
+                        
+                    if user_input.lower() in ['exit', 'quit', 'salir']:
+                        print("👋 ¡Hasta luego!")
+                        break
+                        
+                    response = agent.chat(user_input)
+                    print(f"\n💡 Groq: {response}\n")
+                    
+                except KeyboardInterrupt:
+                    print("\n👋 ¡Hasta luego!")
+                    break
+                    
+        elif args.code:
+            response = agent.code_help(args.code)
+            print(f"\n💻 Ayuda de código:\n{response}")
+            
+        elif args.fix:
+            response = agent.quick_fix(args.fix)
+            print(f"\n🔧 Solución:\n{response}")
+            
+        elif args.explain:
+            response = agent.explain(args.explain)
+            print(f"\n📚 Explicación:\n{response}")
+            
+        elif args.message:
+            response = agent.chat(args.message)
+            print(f"\n💡 Respuesta:\n{response}")
+            
+        else:
+            parser.print_help()
+            
+    except KeyboardInterrupt:
+        print("\n👋 ¡Hasta luego!")
+        sys.exit(0)
+
+if __name__ == "__main__":
+    main()

@@ -1,17 +1,4 @@
-# Ollama MCP Server - Dependencias optimizadas
-# Instalación: pip install -r requirements.txt
-
-# Core dependencies
+# MCP Servers - Dependencias esenciales
 requests>=2.31.0
 python-dotenv>=1.0.0
-
-# GitHub integration
 PyGithub>=2.1.1
-
-# Optional: Web interface (uncomment if needed)
-# fastapi>=0.104.0
-# uvicorn>=0.24.0
-
-# Development tools (optional)
-# black>=23.0.0
-# pytest>=7.4.0

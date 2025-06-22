@@ -1,0 +1,153 @@
+#!/usr/bin/env python3
+"""
+🤖 AI Agent Terminal - Groq Ultra Rápido
+Úsalo desde cualquier lugar de la terminal
+"""
+
+import os
+import sys
+import requests
+import time
+import argparse
+from dotenv import load_dotenv
+
+# Cargar configuración
+script_dir = os.path.dirname(os.path.abspath(__file__))
+env_path = os.path.join(script_dir, '.env')
+load_dotenv(env_path)
+
+class TerminalAI:
+    def __init__(self):
+        self.api_key = os.getenv('GROQ_API_KEY')
+        self.base_url = "https://api.groq.com/openai/v1/chat/completions"
+        self.model = "llama-3.1-8b-instant"
+        
+        if not self.api_key:
+            print("❌ Error: GROQ_API_KEY no encontrada")
+            print("💡 Configura tu API key:")
+            print(f"   echo 'GROQ_API_KEY=tu_key' >> {env_path}")
+            sys.exit(1)
+
+    def chat(self, message, system_prompt=""):
+        """Chat rápido con Groq"""
+        try:
+            start_time = time.time()
+            
+            messages = []
+            if system_prompt:
+                messages.append({"role": "system", "content": system_prompt})
+            messages.append({"role": "user", "content": message})
+            
+            response = requests.post(
+                self.base_url,
+                headers={
+                    "Authorization": f"Bearer {self.api_key}",
+                    "Content-Type": "application/json"
+                },
+                json={
+                    "model": self.model,
+                    "messages": messages,
+                    "max_tokens": 1000,
+                    "temperature": 0.7
+                },
+                timeout=10
+            )
+            
+            end_time = time.time()
+            duration = end_time - start_time
+            
+            if response.status_code == 200:
+                result = response.json()
+                content = result["choices"][0]["message"]["content"]
+                
+                print(f"🤖 AI ({duration:.1f}s):")
+                print("-" * 50)
+                print(content)
+                print("-" * 50)
+                return content
+            else:
+                print(f"❌ Error API: {response.status_code}")
+                return None
+                
+        except Exception as e:
+            print(f"❌ Error: {str(e)}")
+            return None
+
+    def code_help(self, query):
+        """Ayuda especializada de código"""
+        system = """Eres un experto programador. Da respuestas concisas y prácticas.
+        - Incluye código funcional cuando sea relevante
+        - Explica de forma clara y directa
+        - Máximo 3 párrafos"""
+        
+        return self.chat(query, system)
+
+    def quick_fix(self, problem):
+        """Solución rápida a problemas"""
+        system = """Eres un solucionador de problemas. Da respuestas directas y prácticas.
+        - Una solución clara y específica
+        - Pasos concretos si es necesario
+        - Máximo 2 párrafos"""
+        
+        return self.chat(problem, system)
+
+    def explain(self, concept):
+        """Explicar conceptos técnicos"""
+        system = """Explica conceptos técnicos de forma clara y práctica.
+        - Definición simple
+        - Ejemplo práctico
+        - Casos de uso comunes"""
+        
+        return self.chat(f"Explica: {concept}", system)
+
+def main():
+    parser = argparse.ArgumentParser(description="🤖 AI Agent Terminal")
+    parser.add_argument("command", nargs="?", help="Comando a ejecutar")
+    parser.add_argument("text", nargs="*", help="Texto del mensaje")
+    
+    args = parser.parse_args()
+    
+    ai = TerminalAI()
+    
+    # Si no hay argumentos, modo interactivo
+    if not args.command:
+        print("🤖 AI Terminal Agent - Modo Interactivo")
+        print("Comandos: chat, code, fix, explain, quit")
+        print("-" * 50)
+        
+        while True:
+            try:
+                user_input = input("\n💬 Tu: ").strip()
+                if not user_input or user_input.lower() in ['quit', 'exit', 'q']:
+                    print("👋 ¡Hasta luego!")
+                    break
+                
+                ai.chat(user_input)
+                
+            except KeyboardInterrupt:
+                print("\n👋 ¡Hasta luego!")
+                break
+        return
+    
+    # Modo comando
+    text = " ".join(args.text) if args.text else ""
+    
+    if not text:
+        print(f"❌ Error: Falta texto para el comando '{args.command}'")
+        print("💡 Uso: ai chat 'tu mensaje'")
+        sys.exit(1)
+    
+    if args.command == "chat":
+        ai.chat(text)
+    elif args.command == "code":
+        ai.code_help(text)
+    elif args.command == "fix":
+        ai.quick_fix(text)
+    elif args.command == "explain":
+        ai.explain(text)
+    else:
+        print(f"❌ Comando '{args.command}' no reconocido")
+        print("💡 Comandos disponibles: chat, code, fix, explain")
+
+if __name__ == "__main__":
+    main()
