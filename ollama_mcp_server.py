@@ -40,11 +40,13 @@ class OllamaMCPServer:
             'analyze_code': self.analyze_code,
             'review_code': self.review_code,
             'explain_repo': self.explain_repo,
+            'status': self.system_status,
+            'models': self.list_models,
             'help': self.show_help
         }
     
     def _ollama_request(self, model: str, prompt: str, system: str = "") -> str:
-        """Realizar solicitud a Ollama"""
+        """Realizar solicitud a Ollama con timeout"""
         try:
             data = {
                 "model": model,
@@ -54,11 +56,15 @@ class OllamaMCPServer:
             if system:
                 data["system"] = system
             
-            response = requests.post(f"{self.ollama_url}/api/generate", json=data)
+            # Timeout de 60 segundos para requests grandes
+            response = requests.post(f"{self.ollama_url}/api/generate", 
+                                   json=data, timeout=60)
             if response.status_code == 200:
                 return response.json().get('response', 'Sin respuesta')
             else:
                 return f"Error: Ollama no disponible ({response.status_code})"
+        except requests.exceptions.Timeout:
+            return "Error: Timeout - Ollama tardó demasiado en responder. Intenta con un prompt más simple."
         except Exception as e:
             return f"Error conectando a Ollama: {str(e)}"
     
@@ -88,7 +94,7 @@ class OllamaMCPServer:
         
         try:
             url = f'https://api.github.com/search/repositories?q={query}&sort=stars&order=desc&per_page=5'
-            response = requests.get(url, headers=headers)
+            response = requests.get(url, headers=headers, timeout=15)
             
             if response.status_code == 200:
                 data = response.json()
@@ -105,6 +111,8 @@ class OllamaMCPServer:
             else:
                 return {"error": f"Error en GitHub API: {response.status_code}"}
         
+        except requests.exceptions.Timeout:
+            return {"error": "Timeout: GitHub API tardó demasiado en responder"}
         except Exception as e:
             return {"error": f"Error al buscar en GitHub: {str(e)}"}
     
@@ -120,7 +128,7 @@ class OllamaMCPServer:
         
         try:
             url = f'https://api.github.com/repos/{repo}'
-            response = requests.get(url, headers=headers)
+            response = requests.get(url, headers=headers, timeout=15)
             
             if response.status_code == 200:
                 data = response.json()
@@ -140,6 +148,8 @@ class OllamaMCPServer:
             else:
                 return {"error": f"Repositorio no encontrado: {response.status_code}"}
         
+        except requests.exceptions.Timeout:
+            return {"error": "Timeout: GitHub API tardó demasiado en responder"}
         except Exception as e:
             return {"error": f"Error al obtener info del repositorio: {str(e)}"}
     
@@ -155,7 +165,7 @@ class OllamaMCPServer:
         
         try:
             url = f'https://api.github.com/repos/{repo}/contents/{file_path}'
-            response = requests.get(url, headers=headers)
+            response = requests.get(url, headers=headers, timeout=15)
             
             if response.status_code == 200:
                 data = response.json()
@@ -172,6 +182,8 @@ class OllamaMCPServer:
             else:
                 return {"error": f"Archivo no encontrado: {response.status_code}"}
         
+        except requests.exceptions.Timeout:
+            return {"error": "Timeout: GitHub API tardó demasiado en responder"}
         except Exception as e:
             return {"error": f"Error al obtener archivo: {str(e)}"}
     
@@ -230,6 +242,107 @@ class OllamaMCPServer:
             "explanation": response
         }
     
+    def system_status(self) -> Dict[str, Any]:
+        """Verificar estado del sistema (Ollama, GitHub, modelos)"""
+        status = {
+            "type": "status",
+            "ollama": {"status": "unknown", "models": []},
+            "github": {"status": "unknown", "token_configured": bool(self.github_token)},
+            "recommendations": []
+        }
+        
+        # Verificar Ollama
+        try:
+            response = requests.get(f"{self.ollama_url}/api/version", timeout=5)
+            if response.status_code == 200:
+                status["ollama"]["status"] = "✅ Conectado"
+                version_info = response.json()
+                status["ollama"]["version"] = version_info.get("version", "unknown")
+                
+                # Verificar modelos
+                try:
+                    models_response = requests.get(f"{self.ollama_url}/api/tags", timeout=5)
+                    if models_response.status_code == 200:
+                        models_data = models_response.json()
+                        models = [model["name"] for model in models_data.get("models", [])]
+                        status["ollama"]["models"] = models
+                        
+                        # Verificar modelos requeridos
+                        if self.default_model not in models:
+                            status["recommendations"].append(f"⚠️  Instalar modelo de chat: ollama pull {self.default_model}")
+                        if self.coding_model not in models:
+                            status["recommendations"].append(f"⚠️  Instalar modelo de código: ollama pull {self.coding_model}")
+                    else:
+                        status["recommendations"].append("❌ No se pudieron listar modelos de Ollama")
+                except Exception:
+                    status["recommendations"].append("❌ Error al verificar modelos")
+            else:
+                status["ollama"]["status"] = "❌ No disponible"
+                status["recommendations"].append("🔧 Iniciar Ollama: ollama serve")
+        except Exception:
+            status["ollama"]["status"] = "❌ No disponible"
+            status["recommendations"].append("🔧 Verificar que Ollama esté instalado e iniciado")
+        
+        # Verificar GitHub
+        if self.github_token:
+            try:
+                headers = {'Authorization': f'token {self.github_token}'}
+                response = requests.get('https://api.github.com/user', headers=headers, timeout=10)
+                if response.status_code == 200:
+                    user_info = response.json()
+                    status["github"]["status"] = f"✅ Conectado como {user_info.get('login', 'unknown')}"
+                else:
+                    status["github"]["status"] = "❌ Token inválido"
+                    status["recommendations"].append("🔑 Verificar GITHUB_TOKEN en archivo .env")
+            except Exception:
+                status["github"]["status"] = "❌ Error de conexión"
+                status["recommendations"].append("🌐 Verificar conexión a internet")
+        else:
+            status["github"]["status"] = "⚠️  Token no configurado"
+            status["recommendations"].append("🔑 Configurar GITHUB_TOKEN en archivo .env")
+        
+        # Recomendaciones adicionales
+        if not status["recommendations"]:
+            status["recommendations"].append("🎉 Todo funciona correctamente!")
+        
+        return status
+    
+    def list_models(self) -> Dict[str, Any]:
+        """Listar modelos disponibles en Ollama"""
+        try:
+            response = requests.get(f"{self.ollama_url}/api/tags", timeout=10)
+            if response.status_code == 200:
+                data = response.json()
+                models = []
+                for model in data.get("models", []):
+                    model_info = {
+                        "name": model["name"],
+                        "size": model.get("size", 0),
+                        "modified": model.get("modified_at", "unknown")
+                    }
+                    # Marcar modelos configurados
+                    if model["name"] == self.default_model:
+                        model_info["role"] = "🗨️  Chat principal"
+                    elif model["name"] == self.coding_model:
+                        model_info["role"] = "💻 Código principal"
+                    else:
+                        model_info["role"] = "📦 Disponible"
+                    
+                    models.append(model_info)
+                
+                return {
+                    "type": "models",
+                    "models": models,
+                    "configured": {
+                        "chat": self.default_model,
+                        "coding": self.coding_model
+                    }
+                }
+            else:
+                return {"error": "No se pudieron listar modelos"}
+        except Exception as e:
+            return {"error": f"Error al listar modelos: {str(e)}"}
+    
     def show_help(self) -> Dict[str, Any]:
         """Mostrar ayuda del servidor"""
         return {
@@ -242,6 +355,8 @@ class OllamaMCPServer:
                 {"name": "analyze_code", "description": "Analizar código", "usage": "analyze_code <código>"},
                 {"name": "review_code", "description": "Revisar código", "usage": "review_code <código>"},
                 {"name": "explain_repo", "description": "Explicar repositorio", "usage": "explain_repo <owner/repo>"},
+                {"name": "status", "description": "Ver estado del sistema", "usage": "status"},
+                {"name": "models", "description": "Listar modelos disponibles", "usage": "models"},
                 {"name": "help", "description": "Mostrar ayuda", "usage": "help"}
             ],
             "models": {
@@ -258,8 +373,8 @@ class OllamaMCPServer:
         if tool_name not in self.tools:
             return {"error": f"Herramienta '{tool_name}' no encontrada. Usa 'help' para ver opciones."}
         
-        if tool_name == 'help':
-            return {"tool": "help", "params": {}}
+        if tool_name in ['help', 'status', 'models']:
+            return {"tool": tool_name, "params": {}}
         elif tool_name in ['chat', 'code', 'github_search', 'analyze_code', 'review_code']:
             if len(parts) < 2:
                 return {"error": f"Uso: {tool_name} <mensaje/query/código>"}
