@@ -1,4 +1,4 @@
-#!/home/alexballera/mcp-servers/.venv/bin/python
+#!/home/alexballera/mcp-servers/.venv/bin/python3
 """
 🚀 GROQ TERMINAL AGENT - Cliente de terminal ultra-rápido
 Agente AI para la terminal usando Groq (0.5-2 segundos)
