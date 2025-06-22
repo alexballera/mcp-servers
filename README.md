@@ -213,6 +213,10 @@ mcp-servers/
 ├── install.py            # Instalador automático
 ├── ollama_mcp_server.py  # Servidor MCP interactivo
 ├── mcp_direct.py         # Comandos directos/agente
+├── sync_bashrc.sh        # 🔄 Auto-sync .bashrc → .bashrc.example
+├── sync_bashrc.py        # 🔄 Auto-sync (versión Python)
+├── help.sh               # 📋 Comandos de ayuda rápida
+├── SYNC_SCRIPTS.md       # 📚 Documentación de sincronización
 └── README.md             # Esta documentación
 ```
 
@@ -222,6 +226,32 @@ mcp-servers/
 2. **mcp_direct.py**: Comandos directos para uso como agente
 3. **install.py**: Instalación y configuración automática
 4. **.bashrc.example**: Configuración de terminal optimizada
+5. **sync_bashrc.sh/py**: Scripts de sincronización automática
+
+## 🔄 Scripts de Sincronización
+
+**Mantén tu configuración sincronizada automáticamente:**
+
+```bash
+# Ver estado de sincronización
+./sync_bashrc.sh --status
+
+# Sincronización única
+./sync_bashrc.sh --once
+
+# Monitoreo continuo (auto-sync cuando cambies ~/.bashrc)
+./sync_bashrc.sh
+
+# Ayuda rápida
+./help.sh
+```
+
+**Características:**
+- ✅ **Auto-detección** de cambios en `~/.bashrc`
+- ✅ **Limpieza automática** de tokens y rutas específicas
+- ✅ **Git automation** - commit y push automático
+- ✅ **Sin dependencias** (versión Bash) o Python puro
+- ✅ **Documentación completa** en `SYNC_SCRIPTS.md`
 
 ## 🔄 Flujo de Datos
 
