@@ -1,0 +1,39 @@
+# Configuración real (contiene tokens)
+.env
+
+# Entorno virtual
+.venv/
+venv/
+env/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+logs/
+
+# Sistema
+.DS_Store
+Thumbs.db
+
+# Ollama temporal
+.ollama/
+
+# Backups
+*.backup
+*.bak
+*~

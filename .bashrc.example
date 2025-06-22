@@ -1,0 +1,185 @@
+# OLLAMA MCP SERVER - CONFIGURACIÓN OPTIMIZADA
+# =============================================
+# Configuración completa para usar Ollama MCP Server desde cualquier directorio
+# NOTA: Ajusta la variable MCP_HOME según donde clones el repositorio
+
+# Configuración de ubicación (personalizar según tu instalación)
+export MCP_HOME="$HOME/mcp-servers"  # Cambiar si instalaste en otra ubicación
+
+# Función principal MCP
+mcp() {
+    case "$1" in
+        start|server)
+            echo "🚀 Iniciando Ollama MCP Server..."
+            cd "$MCP_HOME" && .venv/bin/python3 ollama_mcp_server.py
+            ;;
+        install|setup)
+            echo "📦 Ejecutando instalación/configuración..."
+            cd "$MCP_HOME" && python install.py
+            ;;
+        models)
+            echo "🤖 Modelos de Ollama instalados:"
+            ollama list
+            ;;
+        pull)
+            if [ -z "$2" ]; then
+                echo "Uso: mcp pull <modelo>"
+                echo "Ejemplos:"
+                echo "  mcp pull deepseek-coder:6.7b"
+                echo "  mcp pull qwen2.5-coder:7b"
+                echo "  mcp pull llama3.2:3b"
+            else
+                echo "📥 Instalando modelo: $2"
+                ollama pull "$2"
+            fi
+            ;;
+        status)
+            echo "📊 Estado del sistema:"
+            echo "Ollama: $(ollama list | wc -l) modelos instalados"
+            echo "MCP Server: $MCP_HOME/"
+            echo "Config: $([ -f $MCP_HOME/.env ] && echo '✅ Configurado' || echo '❌ Falta .env')"
+            ;;
+        # Comandos directos de agente (sin servidor interactivo)
+        chat)
+            shift
+            echo "💬 Chat con Ollama..."
+            $MCP_HOME/.venv/bin/python3 $MCP_HOME/mcp_direct.py chat "$@"
+            ;;
+        code)
+            shift
+            echo "💻 Asistencia de código..."
+            $MCP_HOME/.venv/bin/python3 $MCP_HOME/mcp_direct.py code "$@"
+            ;;
+        github)
+            shift
+            echo "📁 Consultando GitHub..."
+            $MCP_HOME/.venv/bin/python3 $MCP_HOME/mcp_direct.py github_search "$@"
+            ;;
+        help|*)
+            echo "🤖 Ollama MCP Server - Sistema integrado de IA"
+            echo ""
+            echo "📊 COMANDOS INTERACTIVOS:"
+            echo "  mcp start    - Iniciar servidor MCP interactivo"
+            echo ""
+            echo "🚀 COMANDOS DIRECTOS (desde cualquier proyecto):"
+            echo "  mcp chat <mensaje>     - Chat directo con Ollama"
+            echo "  mcp code <consulta>    - Asistencia de código directa"
+            echo "  mcp github <búsqueda>  - Buscar en GitHub directamente"
+            echo ""
+            echo "⚙️ COMANDOS DE SISTEMA:"
+            echo "  mcp models   - Ver modelos de Ollama instalados"
+            echo "  mcp pull     - Instalar nuevo modelo"
+            echo "  mcp install  - Reinstalar/configurar sistema"
+            echo "  mcp status   - Ver estado del sistema"
+            echo ""
+            echo "💡 EJEMPLOS DE USO DIRECTO:"
+            echo "  mcp chat '¿Cómo optimizar este código Python?'"
+            echo "  mcp code 'Crear una API REST con FastAPI'"
+            echo "  mcp github 'machine learning python'"
+            echo ""
+            echo "Ubicación: $MCP_HOME/"
+            ;;
+    esac
+}
+
+# Aliases de compatibilidad
+alias mcp-server='mcp start'
+alias mcp-models='mcp models'
+alias mcp-status='mcp status'
+
+# Aliases directos para uso rápido desde proyectos
+alias ai-chat='mcp chat'
+alias ai-code='mcp code'
+alias ai-github='mcp github'
+            shift
+            echo "📁 Consultando GitHub..."
+            $MCP_HOME/.venv/bin/python3 $MCP_HOME/mcp_direct.py github_search "$@"
+            ;;
+        help)
+            echo "🤖 Ollama MCP Server - Comandos disponibles:"
+            echo ""
+            echo "SERVIDOR INTERACTIVO:"
+            echo "  mcp start          - Iniciar servidor interactivo"
+            echo ""
+            echo "COMANDOS DIRECTOS (AGENTE):"
+            echo "  mcp chat <mensaje> - Chat directo con Llama"
+            echo "  mcp code <consulta>- Asistencia de código"
+            echo "  mcp github <busq>  - Buscar en GitHub"
+            echo ""
+            echo "GESTIÓN DEL SISTEMA:"
+            echo "  mcp models         - Ver modelos instalados"
+            echo "  mcp pull <modelo>  - Instalar nuevo modelo"
+            echo "  mcp status         - Estado del sistema"
+            echo "  mcp install        - Reinstalar/configurar"
+            echo ""
+            echo "ALIASES RÁPIDOS:"
+            echo "  ai-chat, ai-code, ai-github"
+            echo "  analyze <archivo>, review <archivo>"
+            ;;
+        *)
+            echo "❌ Comando no reconocido: $1"
+            echo "Usa: mcp help"
+            ;;
+    esac
+}
+
+# Función para análisis rápido de archivos
+analyze() {
+    if [ -f "$1" ]; then
+        echo "🔍 Analizando archivo: $1"
+        $MCP_HOME/.venv/bin/python3 $MCP_HOME/mcp_direct.py code "Analiza este código y dame sugerencias de mejora: $(cat "$1")"
+    else
+        echo "❌ Archivo no encontrado: $1"
+        echo "Uso: analyze <archivo>"
+    fi
+}
+
+# Función para revisión de código
+review() {
+    if [ -f "$1" ]; then
+        echo "🔎 Revisando código: $1"
+        $MCP_HOME/.venv/bin/python3 $MCP_HOME/mcp_direct.py code "Haz una revisión de código detallada de este archivo, incluye bugs, mejores prácticas y optimizaciones: $(cat "$1")"
+    else
+        echo "❌ Archivo no encontrado: $1"
+        echo "Uso: review <archivo>"
+    fi
+}
+
+# Aliases para comandos más cortos
+alias ai-chat='mcp chat'
+alias ai-code='mcp code'
+alias ai-github='mcp github'
+
+# Función de ayuda rápida
+mcp-help() {
+    echo "🚀 OLLAMA MCP SERVER - Guía rápida"
+    echo ""
+    echo "DESDE CUALQUIER DIRECTORIO:"
+    echo "  mcp chat 'Hola, ¿cómo estás?'"
+    echo "  mcp code 'Crear una API REST con FastAPI'"
+    echo "  mcp github 'python machine learning'"
+    echo "  analyze mi_script.py"
+    echo "  review src/app.js"
+    echo ""
+    echo "SERVIDOR INTERACTIVO:"
+    echo "  mcp start  # Inicia el servidor interactivo"
+    echo ""
+    echo "Para ver todos los comandos: mcp help"
+}
+
+# Auto-completado para mcp
+_mcp_completion() {
+    local cur prev opts
+    COMPREPLY=()
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    prev="${COMP_WORDS[COMP_CWORD-1]}"
+    opts="start server install setup models pull status chat code github help"
+    
+    if [[ ${cur} == * ]] ; then
+        COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
+        return 0
+    fi
+}
+complete -F _mcp_completion mcp
+
+echo "✅ Ollama MCP Server configurado. Usa 'mcp help' o 'mcp-help' para comenzar."
