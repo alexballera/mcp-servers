@@ -37,3 +37,7 @@ Thumbs.db
 *.backup
 *.bak
 *~
+
+# Scripts de sincronización (temporales)
+.sync_running
+.sync_lock
