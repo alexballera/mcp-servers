@@ -2,7 +2,16 @@
 
 Todos los comandos del proyecto MCP Servers optimizados y listos para usar.
 
-## 🚀 Comandos de Terminal
+## � Configuración y Respaldo
+
+Para implementar rápidamente este entorno en un nuevo dispositivo:
+
+```bash
+# Respaldo de .bashrc optimizado con prompt Git y configuración MCP
+https://gist.github.com/alexballera
+```
+
+## �🚀 Comandos de Terminal
 
 ### `mcpask` - Preguntas Rápidas
 **Uso más simple para consultas directas**
@@ -100,40 +109,44 @@ nano ~/mcp-servers/.env
 ```bash
 # Verificar el shebang
 head -1 ~/mcp-servers/mcpask
-# Debe ser: #!/home/usuario/mcp-servers/.venv/bin/python3
+# Debe ser: #!${HOME}/mcp-servers/.venv/bin/python3
 ```
 
 ## 📊 Performance Comparison
 
 ```bash
-# Test de velocidad
-time ./mcpask "test"      # ~0.5s
-time ./mcpcode "test"     # ~1.2s  
-time ./mcpai chat "test"  # ~0.9s
-time ./mcpgroq "test"     # ~0.7s
+# Test de velocidad (con comandos en el PATH)
+time mcpask "test"      # ~0.5s
+time mcpcode "test"     # ~1.2s  
+time mcpai chat "test"  # ~0.9s
+time mcpgroq "test"     # ~0.7s
 ```
 
 ## 🎨 Ejemplos Prácticos
 
 ### Desarrollo Web
 ```bash
+# Si estás en el directorio del proyecto
 ./mcpcode "crear API REST con FastAPI"
-./mcpask "diferencia entre session y cookies"
-./mcpai chat "diseñar base de datos para e-commerce"
+
+# Si los comandos están en el PATH (recomendado)
+mcpcode "crear API REST con FastAPI"
+mcpask "diferencia entre session y cookies"
+mcpai chat "diseñar base de datos para e-commerce"
 ```
 
 ### DevOps
 ```bash
-./mcpcode "dockerfile para aplicación Python"
-./mcpask "¿qué es Kubernetes?"
-./mcpai analyze "mi pipeline de CI/CD"
+mcpcode "dockerfile para aplicación Python"
+mcpask "¿qué es Kubernetes?"
+mcpai analyze "mi pipeline de CI/CD"
 ```
 
 ### Data Science
 ```bash
-./mcpcode "análisis de datos con pandas"
-./mcpask "¿qué es machine learning?"
-./mcpai chat "diseñar modelo de recomendación"
+mcpcode "análisis de datos con pandas"
+mcpask "¿qué es machine learning?"
+mcpai chat "diseñar modelo de recomendación"
 ```
 
 ---

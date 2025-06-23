@@ -2,6 +2,15 @@
 
 Entorno MCP (Model Context Protocol) optimizado para **velocidad**, **simplicidad** y **productividad** en VS Code y terminal.
 
+## 📦 Configuración Respaldada
+
+Para una implementación rápida de tu entorno optimizado:
+
+```bash
+# .bashrc optimizado con prompt Git y configuración MCP
+https://gist.github.com/alexballera
+```
+
 ## 🎯 ¿Qué es esto?
 
 Un kit completo de agentes AI que funciona en **<2 segundos**:

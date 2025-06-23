@@ -2,7 +2,16 @@
 
 Cómo usar este proyecto en **cualquier dispositivo** sin problemas de rutas.
 
-## 🚀 Setup Rápido en Nuevo Dispositivo
+## � Respaldo de Configuración
+
+Para implementar rápidamente tu entorno optimizado en cualquier dispositivo, utiliza el backup de tu configuración:
+
+```bash
+# .bashrc optimizado con prompt Git y configuración MCP
+https://gist.github.com/alexballera
+```
+
+## �🚀 Setup Rápido en Nuevo Dispositivo
 
 ### 1. Clonar el proyecto
 ```bash
@@ -53,29 +62,26 @@ Si prefieres configurar VS Code manualmente, usa **variables de entorno** en lug
 ## 📁 Ubicaciones Recomendadas
 
 ### Opción 1: En el home (Recomendado)
+
 ```bash
 ~/mcp-servers/
 ```
+
 Configuración VS Code:
+
 ```json
 "command": "${env:HOME}/mcp-servers/.venv/bin/python"
 ```
 
-### Opción 2: En tools
-```bash
-~/tools/mcp-servers/
-```
-Configuración VS Code:
-```json
-"command": "${env:HOME}/tools/mcp-servers/.venv/bin/python"
-```
+### Opción 2: Ubicación personalizada
 
-### Opción 3: Ubicación personalizada
 ```bash
 # En cualquier lugar, pero definir variable
 export MCP_PATH="/mi/ubicacion/custom/mcp-servers"
 ```
+
 Configuración VS Code:
+
 ```json
 "command": "${env:MCP_PATH}/.venv/bin/python"
 ```
@@ -102,7 +108,7 @@ GITHUB_TOKEN=ghp_...
 - [ ] Ejecutar `./setup_portable.sh`
 - [ ] Configurar `.env` con API keys
 - [ ] Actualizar VS Code settings.json con `${env:HOME}`
-- [ ] Probar comandos: `./ask "test"`
+- [ ] Probar comandos: `./mcpask "test"`
 - [ ] Reiniciar VS Code para detectar MCP servers
 
 ## 🐛 Troubleshooting
@@ -116,9 +122,10 @@ pip install -r requirements.txt
 ```
 
 ### Problema: "Permission denied"
+
 **Solución:**
 ```bash
-chmod +x ~/mcp-servers/{ai,ask,codehelp,groq}
+chmod +x ~/mcp-servers/{mcpai,mcpask,mcpcode,mcpgroq}
 ```
 
 ### Problema: VS Code no detecta servidores MCP
