@@ -1,10 +1,12 @@
-# CONTEXTO RÁPIDO - MCP Servers
+# CON## 📁 Ubicación
+- **Directorio**: **Raíz del proyecto mcp-servers** (debe tener groq_mcp_fast.py, setup_portable.sh, requirements.txt)
+- **Sistema**: Linux + bash + Python 3TO RÁPIDO - MCP Servers
 
 ## 🚨 ESPAÑOL OBLIGATORIO
 **Responder SIEMPRE en español - preferencia crítica del usuario**
 
 ## � Ubicación
-- **Directorio**: `/home/alexballera/mcp-servers`
+- **Directorio**: **Raíz del proyecto mcp-servers** (debe tener groq_mcp_fast.py, setup_portable.sh, requirements.txt)
 - **Sistema**: Linux + bash + Python 3
 
 ## ⚡ Comandos Clave

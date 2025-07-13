@@ -4,7 +4,7 @@
 
 ### **Estado del Proyecto**
 - **Nombre**: MCP Servers (Model Context Protocol)
-- **Ubicación**: `/home/alexballera/mcp-servers`
+- **Ubicación**: **Raíz del proyecto mcp-servers** (donde están groq_mcp_fast.py, setup_portable.sh, requirements.txt)
 - **Arquitectura**: Python nativo con agentes AI ultra-rápidos
 - **Estado**: ✅ **Completamente funcional** con instrucciones IA especializadas
 

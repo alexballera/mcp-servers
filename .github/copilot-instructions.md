@@ -3,7 +3,7 @@
 ## 🚨 **CONTEXTO CRÍTICO - LEE ESTO PRIMERO**
 
 ### **Ubicación y Ambiente**
-- **Directorio de trabajo**: `/home/alexballera/mcp-servers`
+- **Directorio de trabajo**: **Raíz del proyecto mcp-servers** (donde están groq_mcp_fast.py, setup_portable.sh, requirements.txt)
 - **Sistema**: Linux (bash shell)
 - **Ambiente principal**: **Python 3 con entorno virtual aislado**
 - **Idioma**: **SIEMPRE responder en ESPAÑOL**
@@ -17,7 +17,7 @@
 - 🔴 **SIEMPRE** usar comandos con `./` desde el directorio del proyecto
 
 ### **Flujo de Trabajo Obligatorio**
-1. **ANTES de cualquier acción**: verificar que estamos en `/home/alexballera/mcp-servers`
+1. **ANTES de cualquier acción**: verificar que estamos en **directorio raíz del proyecto mcp-servers** (debe tener groq_mcp_fast.py, setup_portable.sh, requirements.txt)
 2. **Para setup inicial**: SIEMPRE usar `./setup_portable.sh`
 3. **Para comandos**: SIEMPRE usar `./mcpask`, `./mcpcode`, etc.
 4. **Para debugging**: usar `python3 groq_mcp_fast.py` con entorno virtual activado
@@ -245,7 +245,7 @@ nano .env  # Volver a configurar API keys
 
 ### **SIEMPRE hacer esto ANTES de responder:**
 1. **Responder en ESPAÑOL** - el usuario es hispanohablante
-2. Verificar que estamos en `/home/alexballera/mcp-servers`
+2. **Verificar que estamos en directorio raíz del proyecto mcp-servers** (debe tener groq_mcp_fast.py, setup_portable.sh, requirements.txt)
 3. Recordar que TODO funciona con Python + entorno virtual
 4. Usar comandos con `./` como primera opción
 5. Verificar configuración con `echo $GROQ_API_KEY` si hay dudas
